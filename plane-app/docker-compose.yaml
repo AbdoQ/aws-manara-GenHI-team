@@ -59,6 +59,15 @@ x-app-env: &app-env
   MINIO_ENDPOINT_SSL: ${MINIO_ENDPOINT_SSL:-0}
   LIVE_SERVER_SECRET_KEY: ${LIVE_SERVER_SECRET_KEY:-2FiJk1U2aiVPEQtzLehYGlTSnTnrs7LW}
 
+x-mcp: &mcp-env
+  PLANE_BASE_URL: ${API_BASE_URL}
+  PLANE_API_URL: ${API_BASE_URL} 
+  PLANE_API_KEY: ${PLANE_API_KEY}
+  PLANE_WORKSPACE_SLUG: ${PLANE_WORKSPACE_SLUG}
+  PLANE_OAUTH_PROVIDER_CLIENT_ID: ${PLANE_OAUTH_PROVIDER_CLIENT_ID}
+  PLANE_OAUTH_PROVIDER_CLIENT_SECRET: ${PLANE_OAUTH_PROVIDER_SECRET}
+  PLANE_MCP_PROXY_URL: ${PLANE_MCP_PROXY_URL}
+
 services:
   web:
     image: artifacts.plane.so/makeplane/plane-frontend:${APP_RELEASE:-v1.2.1}
@@ -235,12 +244,20 @@ services:
     volumes:
       - proxy_config:/config
       - proxy_data:/data
+      - ./Caddyfile:/etc/caddy/Caddyfile
     depends_on:
       - web
       - api
       - space
       - admin
       - live
+  mcp:
+    image: plane-mcp:latest
+      # ports:
+      #  - 8211:8211
+    environment:
+      <<: *mcp-env
+
 
 volumes:
   pgdata:
